@@ -191,4 +191,4 @@ game.ftcY = function(y) {
     return y * this.cellHeight;
 };
 
-game.init(map1);
+game.init(maps[2]);
