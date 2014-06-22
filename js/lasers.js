@@ -42,8 +42,8 @@ function vec_dy(vec) {
 };
 
 function add_pos_vec(pos, vec) {
-    return create_position(vec_dx(vec),
-                           vec_dy(vec));
+    return create_position(position_x(pos) + vec_dx(vec),
+                           position_y(pos) + vec_dy(vec));
 };
 
 
@@ -187,7 +187,7 @@ function create_laser_destination(dest_pos, dest_dir) {
 function at_destination(laser_state, laser_destination) {
     return (equal_position(laser_state_pos(laser_state),
                            laser_state_pos(laser_destination)) &&
-            equual_dir(laser_state_dir(laser_state),
+            equal_dir(laser_state_dir(laser_state),
                        laser_state_pos(laser_destination)));
 };
 
@@ -207,7 +207,7 @@ function step_laser_state(init_laser_state) {
     if (absorbs(laser_effect)) {
         return create_dead_laser_state(new_pos, new_dir);
     } else if (reflects(laser_effect)) {
-        var new_dir = apply_reflection(init_dir, refl_state);
+        var new_dir = apply_laser_effect_reflection(init_dir, laser_effect);
     }
     return create_live_laser_state(new_pos, new_dir);
 };
@@ -215,12 +215,15 @@ function step_laser_state(init_laser_state) {
 function simulate_laser(laser_source, laser_destination) {
     var laser_coords = [];
     var laser_state = laser_source;
-    while (laser_state_live(laser_state) &&
+    var count = 0;
+    while (count < 50 &&
+           laser_state_live(laser_state) &&
            !at_destination(laser_state, laser_destination)) {
         laser_coords.push(laser_state_pos(laser_state));
         var new_laser_state = step_laser_state(laser_state);
         //render_laser_step(laser_state, new_laser_state);
         laser_state = new_laser_state;
+        count += 1;
     }
     laser_coords.push(laser_state_pos(laser_state));
     return laser_coords;
