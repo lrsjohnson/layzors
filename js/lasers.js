@@ -140,8 +140,10 @@ function get_laser_effect(pos) {
     
     if (field_cell == TYPE.FORWARD) {
         return MIRROR_FORWARD;
-    } else if (field_cell == TYPE.FORWARD) {
-        return MIRROR_FORWARD;
+    } else if (field_cell == TYPE.BACKWARD) {
+        return MIRROR_BACKWARD;
+    } else if (field_cell == TYPE.WALL) {
+        return WALL;
     } else {
         return OPEN;
     }

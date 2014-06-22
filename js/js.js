@@ -51,6 +51,7 @@ game.onKeyPress = function(e) {
     }
     var coords = test_from_allen_code();
     console.log(coords);
+    game.drawLaser(coords);
 };
 
 game.draw = function() {
@@ -69,35 +70,53 @@ game.draw = function() {
             var element = this.field[i][j];
             var x = this.ftcX(i);
             var y = this.ftcY(j);
-            if (element === '/') {
+            if (element === TYPE.FORWARD) {
                 this.context.moveTo(x + 11*this.scale, y + 22*this.scale);
                 this.context.lineTo(x + 22*this.scale, y + 11*this.scale);
-            } else if (element === '\\') {
+            } else if (element === TYPE.BACKWARD){
                 this.context.moveTo(x + 11*this.scale, y + 11*this.scale);
                 this.context.lineTo(x + 21*this.scale, y + 21*this.scale);
-            } else if (element === '0') {
+            } else if (element === TYPE.WALL) {
                 this.context.fillRect(x, y, 32*this.scale, 32*this.scale);
             }
         }
     }
     this.context.stroke();
-    this.context.beginPath();
+    this.context.beginPath(); // drawing player
     var playerX = this.ftcX(this.player[0]) + this.cellWidth / 2;
     var playerY = this.ftcY(this.player[1]) + this.cellHeight / 2;
     this.context.arc(playerX, playerY, 6*this.scale, 0, Math.PI * 2);
     this.context.stroke();
     var xChanges = [this.cellWidth / 2, this.cellWidth, this.cellWidth / 2, 0];
     var yChanges = [0, this.cellHeight / 2, this.cellHeight, this.cellHeight / 2];
-    var sourceX = this.ftcX(this.source[0]) + xChanges[this.source[2]];
+    var sourceX = this.ftcX(this.source[0]) + xChanges[this.source[2]]; // drawing source
     var sourceY = this.ftcY(this.source[1]) + yChanges[this.source[2]];
     for (var r = 0; r < 5*this.scale; r++) {
         this.context.beginPath();
         this.context.arc(sourceX, sourceY, r, Math.PI/2 * (this.source[2]), Math.PI/2 * (this.source[2] + 2));
         this.context.stroke();
     }
+    var goalX = this.ftcX(this.goal[0]) + xChanges[this.source[2]]; // drawing goal
+    var goalY = this.ftcY(this.goal[1]) + yChanges[this.source[2]];
+    
 };
 
-
+game.drawLaser = function(laserCoords) {
+    if (laserCoords.length === 0) {
+        return;
+    }
+    this.context.strokeStyle = 'red';
+    var lastX = this.ftcX(laserCoords[0].x) + this.cellWidth / 2;
+    var lastY = this.ftcY(laserCoords[0].y) + this.cellHeight / 2;
+    this.context.beginPath();
+    this.context.moveTo(lastX, lastY);
+    for (var i = 1; i < laserCoords.length; i++) {
+        var x = this.ftcX(laserCoords[i].x) + this.cellWidth / 2;
+        var y = this.ftcY(laserCoords[i].y) + this.cellHeight / 2;
+        this.context.lineTo(x, y);
+    }
+    this.context.stroke();
+}
 
 // field to canvas x
 game.ftcX = function(x) {
