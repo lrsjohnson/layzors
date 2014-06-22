@@ -190,7 +190,7 @@ function at_destination(laser_state, laser_destination) {
     return (equal_position(laser_state_pos(laser_state),
                            laser_state_pos(laser_destination)) &&
             equal_dir(laser_state_dir(laser_state),
-                       laser_state_pos(laser_destination)));
+                       laser_state_dir(laser_destination)));
 };
 
 
@@ -238,8 +238,8 @@ function test_from_allen_code() {
                                                laser_start_dir);
     /* Succeed when the laser is leaving the destination_pos
      * towards desination_dir */
-    var destination_pos = create_position(1, 1);
-    var destination_dir = DIR_DOWN;
+    var destination_pos = create_position(2, 1);
+    var destination_dir = DIR_RIGHT;
     var destination = create_laser_destination(destination_pos,
                                                destination_dir);
 

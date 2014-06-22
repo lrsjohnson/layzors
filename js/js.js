@@ -170,19 +170,44 @@ game.draw = function(laserCoords) {
         }
     }
     this.context.stroke();
-    this.context.beginPath(); // drawing player
-    var playerX = this.ftcX(this.player[0]) + this.cellWidth / 2;
-    var playerY = this.ftcY(this.player[1]) + this.cellHeight / 2;
-    this.context.arc(playerX, playerY, 6*this.scale, 0, Math.PI * 2);
-    this.context.stroke();
     var sourcePos = this.fotc(this.source);
     for (var r = 0; r < 5*this.scale; r++) {
         this.context.beginPath();
         this.context.arc(sourcePos[0], sourcePos[1], r, Math.PI/2 * (this.source[2]), Math.PI/2 * (this.source[2] + 2));
         this.context.stroke();
     }
-    var goalPos = this.fotc(this.goal);
-
+    var goalPos = this.fotc(this.goal); // drawing goal
+    var w = 5*this.scale;
+    var h = 7*this.scale;
+    var goalL1 = [[-w, 0], [0, -w], [-w, 0], [0, -w]];
+    var goalL2 = [[-w, h], [-h, -w], [-w, -h], [h, -w]];
+    var goalR1 = [[w, 0], [0, w], [w, 0], [0, w]];
+    var goalR2 = [[w, h], [-h, w], [w, -h], [h, w]];
+    var goalM = [[0, h], [-h, 0], [0, -h], [h, 0]];
+    this.context.beginPath();
+    var y = this.goal[2];
+    this.context.moveTo(goalPos[0] + goalL1[y][0], goalPos[1] + goalL1[y][1]);
+    this.context.lineTo(goalPos[0] + goalL2[y][0], goalPos[1] + goalL2[y][1]);
+    this.context.moveTo(goalPos[0] + goalR1[y][0], goalPos[1] + goalR1[y][1]);
+    this.context.lineTo(goalPos[0] + goalR2[y][0], goalPos[1] + goalR2[y][1]);
+    this.context.stroke();
+    this.context.beginPath();
+    this.context.arc(goalPos[0] + goalM[y][0], goalPos[1] + goalM[y][1], w, Math.PI/2 * (y+2), Math.PI/2 * (y+4));
+    this.context.stroke();
+    for (var i = 0; i < this.buttons.length; i++) { // drawing buttons
+        var button = this.buttons[i];
+        var buttonX = this.ftcX(button[0]);
+        var buttonY = this.ftcY(button[1]);
+        this.context.strokeRect(buttonX + 6*this.scale, buttonY + 14*this.scale, 20*this.scale, 4*this.scale);
+    }
+    this.context.beginPath(); // drawing player
+    var playerX = this.ftcX(this.player[0]) + this.cellWidth / 2;
+    var playerY = this.ftcY(this.player[1]) + this.cellHeight / 2;
+    this.context.arc(playerX, playerY, 6*this.scale, 0, Math.PI * 2);
+    this.context.fillStyle = 'white';
+    this.context.fill();
+    this.context.fillStyle = 'black';
+    this.context.stroke();
     
     game.drawLaser(laserCoords);
 };
@@ -238,9 +263,14 @@ var onFinish = function (won) {
     }
 };
 
-var start = function() {game.init(maps[currentMap], onFinish); text.innerHTML = '&nbsp;';};
+var start = function() {
+    game.init(maps[currentMap], onFinish);
+    text.innerHTML = '&nbsp;';
+    level.innerHTML = "<h2>Level: " + currentMap + "</h2>";
+};
 var text = document.getElementById('text');
-var maps = [map1];//, map2, map3];
-var currentMap = 0;
+var level = document.getElementById('level');
+var currentMap = 1;
 window.addEventListener('keydown', makeOnKeyPress(game), false);
 start();
+console.log("What are you doing looking at the console? Your actions have been logged, and we know where you live. Back to the game with you!");
