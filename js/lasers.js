@@ -229,23 +229,26 @@ function simulate_laser(laser_source, laser_destination) {
 };
 
 
-function test_from_allen_code() {
-    /* Start with the laser entering the start_pos from the
+function test_from_allen_code(data) {
+    /* Start with the laser entering the start_pos going in the
      * start_dir */
-    var laser_start_pos = create_position(0, 3);
-    var laser_start_dir = DIR_RIGHT;
+    var laser_start_pos = create_position(data.source[0], data.source[1]);
+    var laser_start_dir = allen_dir_to_lars_dir(data.source[2]);
     var laser_source = create_live_laser_state(laser_start_pos,
                                                laser_start_dir);
     /* Succeed when the laser is leaving the destination_pos
      * towards desination_dir */
-    var destination_pos = create_position(2, 1);
-    var destination_dir = DIR_RIGHT;
+    var destination_pos = create_position(data.goal[0], data.goal[1]);
+    var destination_dir = data.goal[2];
     var destination = create_laser_destination(destination_pos,
                                                destination_dir);
 
     return simulate_laser(laser_source, destination);
-}
+};
 
+function allen_dir_to_lars_dir(dir) {
+    return (dir + 2) % 4;
+};
 
 /* Sprite-based rendering stuff */
 

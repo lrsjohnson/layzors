@@ -24,7 +24,7 @@ maps[2] = {
     player: [0, 0],
     buttons: [[1, 1]],
     source: [6, 0, 0],
-    goal: [0, 0, 1]
+    goal: [0, 0, 0]
 };
 
 

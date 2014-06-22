@@ -56,10 +56,14 @@ var makeOnKeyPress = function(x) {
 };
 
 game.handleKeyPress = function(e) {
+    var key = e.keyCode;
+    if (key == 82) {
+        start();
+        return;
+    }
     if (!this.active) {
         return;
     }
-    var key = e.keyCode;
     var newPos;
     if (key == 37 || key == 65) { // left
         newPos = [this.player[0] - 1, this.player[1]];
@@ -75,12 +79,13 @@ game.handleKeyPress = function(e) {
     if (!this.moveIfCan(newPos)) {
         return; // can't move
     }
+    //this.flipMirrors();
     var coords;
     var win = false;
     for (var i = 0; i < this.buttons.length; i++) {
         var button = this.buttons[i];
         if (eq(button, this.player) || this.field[button[0]][button[1]] !== TYPE.EMPTY) {
-            var results = test_from_allen_code();
+            var results = test_from_allen_code(this);
             coords = results.coords;
             win = results.win;
             break;
@@ -93,6 +98,18 @@ game.handleKeyPress = function(e) {
     } else if (win) {
         this.active = false;
         this.onFinish(true);
+    }
+};
+
+game.flipMirrors = function() {
+    for (var i = 0; i < this.width; i++) {
+        for (var j = 0; j < this.height; j++) {
+            if (this.field[i][j] == TYPE.FORWARD) {
+                this.field[i][j] = TYPE.BACKWARD;
+            } else if (this.field[i][j] == TYPE.BACKWARD) {
+                this.field[i][j] = TYPE.FORWARD;
+            }
+        }
     }
 };
 
@@ -255,7 +272,7 @@ game.ftcY = function(y) {
 var onFinish = function (won) {
     if (won) {
         console.log('Yay!');
-        text.innerHTML = '<b>Click to go to the next level.</b>';
+        text.innerHTML = '<b>Click or press \'r\' to go to the next level.</b>';
         currentMap ++;
     } else {
         console.log('Boo.');
