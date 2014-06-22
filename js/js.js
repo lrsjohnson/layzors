@@ -9,9 +9,22 @@ var TYPE = {
     GOAL: "!"
 };
 
+var deepCopy = function(x) {
+    if (x instanceof Array) {
+        var y = [];
+        for (var i = 0; i < x.length; i++) {
+            y.push(deepCopy(x[i]));
+        }
+        return y;
+    } else {
+        return x;
+    }
+};
+
 var game = {};
 
-game.init = function(map) {
+game.init = function(map, toDoOnFinish) {
+    this.active = true;
     this.cellWidth = 30;
     this.cellHeight = 30;
     this.lineWidth = 2;
@@ -23,17 +36,17 @@ game.init = function(map) {
 
     this.canvas = document.getElementById('canvas');
     this.context = canvas.getContext('2d');
-    this.field = map.field;
+    this.field = deepCopy(map.field);
     this.width = this.field.length;
     this.height = this.field[0].length;
-    this.player = map.player; // {x, y}
-    this.buttons = map.buttons; // [{x1, y1}, ..., {xn, yn}]
-    this.source = map.source; // {x, y}
-    this.goal = map.goal; // {x, y}
+    this.player = deepCopy(map.player); // {x, y}
+    this.buttons = deepCopy(map.buttons); // [{x1, y1}, ..., {xn, yn}]
+    this.source = deepCopy(map.source); // {x, y}
+    this.goal = deepCopy(map.goal); // {x, y}
     this.canvas.width = this.width * this.cellWidth + this.lineWidth-1;
     this.canvas.height = this.height * this.cellHeight + this.lineWidth-1;
+    this.onFinish = toDoOnFinish;
 
-    window.addEventListener('keydown', makeOnKeyPress(this), false);
     
     this.draw();
 };
@@ -43,6 +56,9 @@ var makeOnKeyPress = function(x) {
 };
 
 game.handleKeyPress = function(e) {
+    if (!this.active) {
+        return;
+    }
     var key = e.keyCode;
     var newPos;
     if (key == 37 || key == 65) { // left
@@ -60,14 +76,33 @@ game.handleKeyPress = function(e) {
         return; // can't move
     }
     var coords;
+    var win = false;
     for (var i = 0; i < this.buttons.length; i++) {
         var button = this.buttons[i];
         if (eq(button, this.player) || this.field[button[0]][button[1]] !== TYPE.EMPTY) {
-            coords = test_from_allen_code();
+            var results = test_from_allen_code();
+            coords = results.coords;
+            win = results.win;
             break;
         }
     }
     this.draw(coords);
+    if (coords !== undefined && this.died(coords)) {
+        this.active = false;
+        this.onFinish(false);
+    } else if (win) {
+        this.active = false;
+        this.onFinish(true);
+    }
+};
+
+game.died = function(coords) {
+    for (var i = 0; i < coords.length; i++) {
+        if (coords[i].x == this.player[0] && coords[i].y == this.player[1]) {
+            return true;
+        }
+    }
+    return false;
 };
 
 var eq = function(x, y) {
@@ -147,6 +182,7 @@ game.draw = function(laserCoords) {
         this.context.stroke();
     }
     var goalPos = this.fotc(this.goal);
+
     
     game.drawLaser(laserCoords);
 };
@@ -191,4 +227,20 @@ game.ftcY = function(y) {
     return y * this.cellHeight;
 };
 
-game.init(map1);
+var onFinish = function (won) {
+    if (won) {
+        console.log('Yay!');
+        text.innerHTML = '<b>Click to go to the next level.</b>';
+        currentMap ++;
+    } else {
+        console.log('Boo.');
+        text.innerHTML = '<b>Click to restart.</b>';
+    }
+};
+
+var start = function() {game.init(maps[currentMap], onFinish); text.innerHTML = '&nbsp;';};
+var text = document.getElementById('text');
+var maps = [map1];//, map2, map3];
+var currentMap = 0;
+window.addEventListener('keydown', makeOnKeyPress(game), false);
+start();
