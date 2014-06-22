@@ -30,31 +30,84 @@ game.init = function(map) {
     this.buttons = map.buttons; // [{x1, y1}, ..., {xn, yn}]
     this.source = map.source; // {x, y}
     this.goal = map.goal; // {x, y}
-    this.canvas.width = this.width * this.cellWidth + this.lineWidth;
-    this.canvas.height = this.height * this.cellHeight + this.lineWidth;
+    this.canvas.width = this.width * this.cellWidth + this.lineWidth-1;
+    this.canvas.height = this.height * this.cellHeight + this.lineWidth-1;
 
-    window.addEventListener('keydown', this.onKeyPress, false);
+    window.addEventListener('keydown', makeOnKeyPress(this), false);
     
     this.draw();
 };
 
-game.onKeyPress = function(e) {
-    var key = e.keyCode;
-    if (key == 37 || key == 65) { // left
-        console.log("left");
-    } else if (key == 38 || key == 87) { // up
-        console.log("up");
-    } else if (key == 39 || key == 68) { // right
-        console.log("right");
-    } else if (key == 40 || key == 83) { // down
-        console.log("down");
-    }
-    var coords = test_from_allen_code();
-    console.log(coords);
-    game.drawLaser(coords);
+var makeOnKeyPress = function(x) {
+    return function(e) {x.handleKeyPress(e);};
 };
 
-game.draw = function() {
+game.handleKeyPress = function(e) {
+    var key = e.keyCode;
+    var newPos;
+    if (key == 37 || key == 65) { // left
+        newPos = [this.player[0] - 1, this.player[1]];
+    } else if (key == 38 || key == 87) { // up
+        newPos = [this.player[0], this.player[1] - 1];
+    } else if (key == 39 || key == 68) { // right
+        newPos = [this.player[0] + 1, this.player[1]];
+    } else if (key == 40 || key == 83) { // down
+        newPos = [this.player[0], this.player[1] + 1];
+    } else { // only want to do stuff from valid key presses
+        return;
+    }
+    if (!this.moveIfCan(newPos)) {
+        return; // can't move
+    }
+    var coords;
+    for (var i = 0; i < this.buttons.length; i++) {
+        var button = this.buttons[i];
+        if (eq(button, this.player) || this.field[button[0]][button[1]] !== TYPE.EMPTY) {
+            coords = test_from_allen_code();
+            break;
+        }
+    }
+    this.draw(coords);
+};
+
+var eq = function(x, y) {
+    return x[0] === y[0] && x[1] === y[1];
+};
+
+game.inBounds = function(newPos) {
+    return !(newPos[0] < 0 || newPos[0] >= game.width ||
+           newPos[1] < 0 || newPos[1] >= game.height);
+};
+
+game.moveIfCan = function(newPos) {
+    if (!this.inBounds(newPos)) {
+        return false;
+    }
+    var ele = this.field[newPos[0]][newPos[1]];
+    if (ele == TYPE.EMPTY) {
+        this.player = newPos;
+        return true;
+    } else if (ele == TYPE.WALL) {
+        return false;
+    } else if (ele == TYPE.FORWARD || ele == TYPE.BACKWARD) {
+        var change = [newPos[0] - this.player[0], newPos[1] - this.player[1]];
+        var oneMore = [newPos[0] + change[0], newPos[1] + change[1]];
+        if (!this.inBounds(oneMore)) {
+            return false;
+        }
+        var oneMoreEle = this.field[oneMore[0]][oneMore[1]];
+        if (oneMoreEle == TYPE.EMPTY) {
+            this.field[oneMore[0]][oneMore[1]] = ele;
+            this.field[newPos[0]][newPos[1]] = TYPE.EMPTY;
+            this.player = newPos;
+            return true;
+        }
+    }
+    return false;
+};
+
+game.draw = function(laserCoords) {
+    this.canvas.width = this.canvas.width;
     this.context.lineWidth = this.lineWidth;
     this.context.beginPath();
     for (var i = 0; i <= this.width; i++) { // drawing x gridlines
@@ -77,7 +130,7 @@ game.draw = function() {
                 this.context.moveTo(x + 11*this.scale, y + 11*this.scale);
                 this.context.lineTo(x + 21*this.scale, y + 21*this.scale);
             } else if (element === TYPE.WALL) {
-                this.context.fillRect(x, y, 32*this.scale, 32*this.scale);
+                this.context.fillRect(x, y, this.cellWidth, this.cellHeight);
             }
         }
     }
@@ -87,35 +140,45 @@ game.draw = function() {
     var playerY = this.ftcY(this.player[1]) + this.cellHeight / 2;
     this.context.arc(playerX, playerY, 6*this.scale, 0, Math.PI * 2);
     this.context.stroke();
-    var xChanges = [this.cellWidth / 2, this.cellWidth, this.cellWidth / 2, 0];
-    var yChanges = [0, this.cellHeight / 2, this.cellHeight, this.cellHeight / 2];
-    var sourceX = this.ftcX(this.source[0]) + xChanges[this.source[2]]; // drawing source
-    var sourceY = this.ftcY(this.source[1]) + yChanges[this.source[2]];
+    var sourcePos = this.fotc(this.source);
     for (var r = 0; r < 5*this.scale; r++) {
         this.context.beginPath();
-        this.context.arc(sourceX, sourceY, r, Math.PI/2 * (this.source[2]), Math.PI/2 * (this.source[2] + 2));
+        this.context.arc(sourcePos[0], sourcePos[1], r, Math.PI/2 * (this.source[2]), Math.PI/2 * (this.source[2] + 2));
         this.context.stroke();
     }
-    var goalX = this.ftcX(this.goal[0]) + xChanges[this.source[2]]; // drawing goal
-    var goalY = this.ftcY(this.goal[1]) + yChanges[this.source[2]];
+    var goalPos = this.fotc(this.goal);
     
+    game.drawLaser(laserCoords);
 };
 
 game.drawLaser = function(laserCoords) {
-    if (laserCoords.length === 0) {
+    if (laserCoords === undefined || laserCoords.length === 0) {
         return;
     }
     this.context.strokeStyle = 'red';
-    var lastX = this.ftcX(laserCoords[0].x) + this.cellWidth / 2;
-    var lastY = this.ftcY(laserCoords[0].y) + this.cellHeight / 2;
+    var firstPos = this.fotc(this.source);
     this.context.beginPath();
-    this.context.moveTo(lastX, lastY);
-    for (var i = 1; i < laserCoords.length; i++) {
+    this.context.moveTo(firstPos[0], firstPos[1]);
+    for (var i = 0; i < laserCoords.length; i++) {
         var x = this.ftcX(laserCoords[i].x) + this.cellWidth / 2;
         var y = this.ftcY(laserCoords[i].y) + this.cellHeight / 2;
         this.context.lineTo(x, y);
     }
     this.context.stroke();
+    this.context.strokeStyle = 'black';
+    if (laserCoords.length > 1) {
+        var x = this.ftcX(laserCoords[laserCoords.length-1].x);
+        var y = this.ftcY(laserCoords[laserCoords.length-1].y);
+        this.context.fillRect(x, y, this.cellWidth, this.cellHeight);
+    }
+};
+
+game.fotc = function(pos) {
+    var xChanges = [this.cellWidth / 2, this.cellWidth, this.cellWidth / 2, 0];
+    var yChanges = [0, this.cellHeight / 2, this.cellHeight, this.cellHeight / 2];
+    var canvX = this.ftcX(pos[0]) + xChanges[pos[2]];
+    var canvY = this.ftcY(pos[1]) + yChanges[pos[2]];
+    return [canvX, canvY];
 }
 
 // field to canvas x
