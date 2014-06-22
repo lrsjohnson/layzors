@@ -202,15 +202,15 @@ function step_laser_state(init_laser_state) {
     var init_pos = laser_state_pos(init_laser_state);
     var init_dir = laser_state_dir(init_laser_state);
 
-    var new_pos = step_dir(init_pos, init_dir);
-    var laser_effect = get_laser_effect(new_pos);
+    var laser_effect = get_laser_effect(init_pos);
 
     var new_dir = init_dir;
     if (absorbs(laser_effect)) {
-        return create_dead_laser_state(new_pos, new_dir);
+        return create_dead_laser_state(init_pos, init_dir);
     } else if (reflects(laser_effect)) {
         var new_dir = apply_laser_effect_reflection(init_dir, laser_effect);
     }
+    var new_pos = step_dir(init_pos, new_dir);    
     return create_live_laser_state(new_pos, new_dir);
 };
 
