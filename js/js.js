@@ -41,6 +41,9 @@ game.init = function(map, toDoOnFinish) {
     this.height = this.field[0].length;
     this.player = deepCopy(map.player); // {x, y}
     this.buttons = deepCopy(map.buttons); // [{x1, y1}, ..., {xn, yn}]
+    if (this.buttons === undefined) {
+        this.buttons = [];
+    }
     this.source = deepCopy(map.source); // {x, y}
     this.goal = deepCopy(map.goal); // {x, y}
     this.canvas.width = this.width * this.cellWidth + this.lineWidth-1;
@@ -90,6 +93,11 @@ game.handleKeyPress = function(e) {
             win = results.win;
             break;
         }
+    }
+    if (this.buttons.length == 0) {
+        var results = test_from_allen_code(this);
+        coords = results.coords;
+        win = results.win;
     }
     this.draw(coords);
     if (coords !== undefined && this.died(coords)) {
