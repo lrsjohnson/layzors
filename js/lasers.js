@@ -138,9 +138,9 @@ function get_laser_effect(pos) {
     }
     var field_cell = game.field[x][y];
     
-    if (field_cell == TYPE.FORWARD) {
+    if (field_cell == TYPE.FORWARD || field_cell == TYPE.FORWARD_FLIP) {
         return MIRROR_FORWARD;
-    } else if (field_cell == TYPE.BACKWARD) {
+    } else if (field_cell == TYPE.BACKWARD || field_cell == TYPE.BACKWARD_FLIP) {
         return MIRROR_BACKWARD;
     } else if (field_cell == TYPE.WALL) {
         return WALL;

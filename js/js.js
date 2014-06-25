@@ -4,6 +4,8 @@ var TYPE = {
     WALL: "0",
     FORWARD: "/",
     BACKWARD: "\\",
+    FORWARD_FLIP: "f",
+    BACKWARD_FLIP: "b",
     BUTTON: ".",
     SOURCE: "@",
     GOAL: "!"
@@ -82,7 +84,7 @@ game.handleKeyPress = function(e) {
     if (!this.moveIfCan(newPos)) {
         return; // can't move
     }
-    //this.flipMirrors();
+    this.flipMirrors();
     var coords;
     var win = false;
     for (var i = 0; i < this.buttons.length; i++) {
@@ -112,10 +114,10 @@ game.handleKeyPress = function(e) {
 game.flipMirrors = function() {
     for (var i = 0; i < this.width; i++) {
         for (var j = 0; j < this.height; j++) {
-            if (this.field[i][j] == TYPE.FORWARD) {
-                this.field[i][j] = TYPE.BACKWARD;
-            } else if (this.field[i][j] == TYPE.BACKWARD) {
-                this.field[i][j] = TYPE.FORWARD;
+            if (this.field[i][j] == TYPE.FORWARD_FLIP) {
+                this.field[i][j] = TYPE.BACKWARD_FLIP;
+            } else if (this.field[i][j] == TYPE.BACKWARD_FLIP) {
+                this.field[i][j] = TYPE.FORWARD_FLIP;
             }
         }
     }
@@ -149,7 +151,7 @@ game.moveIfCan = function(newPos) {
         return true;
     } else if (ele == TYPE.WALL) {
         return false;
-    } else if (ele == TYPE.FORWARD || ele == TYPE.BACKWARD) {
+    } else if (ele == TYPE.FORWARD || ele == TYPE.BACKWARD || ele == TYPE.FORWARD_FLIP || ele == TYPE.BACKWARD_FLIP) {
         var change = [newPos[0] - this.player[0], newPos[1] - this.player[1]];
         var oneMore = [newPos[0] + change[0], newPos[1] + change[1]];
         if (!this.inBounds(oneMore)) {
@@ -183,10 +185,10 @@ game.draw = function(laserCoords) {
             var element = this.field[i][j];
             var x = this.ftcX(i);
             var y = this.ftcY(j);
-            if (element === TYPE.FORWARD) {
+            if (element === TYPE.FORWARD || element === TYPE.FORWARD_FLIP) {
                 this.context.moveTo(x + 11*this.scale, y + 22*this.scale);
                 this.context.lineTo(x + 22*this.scale, y + 11*this.scale);
-            } else if (element === TYPE.BACKWARD){
+            } else if (element === TYPE.BACKWARD || element == TYPE.BACKWARD_FLIP){
                 this.context.moveTo(x + 11*this.scale, y + 11*this.scale);
                 this.context.lineTo(x + 21*this.scale, y + 21*this.scale);
             } else if (element === TYPE.WALL) {
@@ -282,6 +284,10 @@ var onFinish = function (won) {
         console.log('Yay!');
         text.innerHTML = '<b>Click or press \'r\' to go to the next level.</b>';
         currentMap ++;
+        if (currentMap > maps.length) {
+            text.innerHTML = "<b>You're done! Congrats!</b>";
+            currentMap --;
+        }
     } else {
         console.log('Boo.');
         text.innerHTML = '<b>Click to restart.</b>';
@@ -289,7 +295,7 @@ var onFinish = function (won) {
 };
 
 var start = function() {
-    game.init(maps[currentMap], onFinish);
+    game.init(maps[currentMap-1], onFinish);
     text.innerHTML = '&nbsp;';
     level.innerHTML = "<h2>Level: " + currentMap + "</h2>";
 };
