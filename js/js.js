@@ -194,6 +194,12 @@ game.draw = function(laserCoords) {
             } else if (element === TYPE.WALL) {
                 this.context.fillRect(x, y, this.cellWidth, this.cellHeight);
             }
+            if (element === TYPE.FORWARD_FLIP || element === TYPE.BACKWARD_FLIP) {
+                var centerX = x + this.cellWidth / 2 - 2*this.scale;
+                var centerY = y + this.cellHeight / 2 - 2*this.scale;
+                this.context.fillRect(centerX, centerY, 5*this.scale, 5*this.scale);
+            }
+            
         }
     }
     this.context.stroke();
