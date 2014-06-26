@@ -9,7 +9,8 @@ var TYPE = {
     BUTTON: ".",
     SOURCE: "@",
     GOAL: "!",
-    DOOR: "d"
+    DOOR: "d",
+    SLIDER: "s"
 };
 
 var deepCopy = function(x) {
@@ -43,10 +44,8 @@ game.init = function(map, toDoOnFinish) {
     this.width = this.field.length;
     this.height = this.field[0].length;
     this.player = deepCopy(map.player); // {x, y}
-    this.buttons = deepCopy(map.buttons); // [{x1, y1}, ..., {xn, yn}]
-    if (this.buttons === undefined) {
-        this.buttons = [];
-    }
+    this.buttons = map.buttons === undefined ? [] : deepCopy(map.buttons); // [{x1, y1}, ..., {xn, yn}]
+    this.sliders = map.sliders === undefined ? [] : deepCopy(map.sliders);
     this.source = deepCopy(map.source); // {x, y}
     this.goal = deepCopy(map.goal); // {x, y}
     this.door = deepCopy(map.door);
@@ -82,10 +81,9 @@ game.handleKeyPress = function(e) {
     } else { // only want to do stuff from valid key presses
         return;
     }
-    if (!this.moveIfCan(newPos)) {
-        return; // can't move
+    if (this.moveIfCan(newPos, this.playerMoveCallback, TYPE.PLAYER, this.player)) {
+        this.takeTurn();
     }
-    this.takeTurn();
 };
     
 game.takeTurn = function(firstTurn) {
@@ -153,32 +151,67 @@ game.inBounds = function(newPos) {
            newPos[1] < 0 || newPos[1] >= game.height);
 };
 
-game.moveIfCan = function(newPos) {
-    if (!this.inBounds(newPos)) {
-        return false;
-    }
-    var ele = this.field[newPos[0]][newPos[1]];
-    if (ele == TYPE.EMPTY) {
-        this.player = newPos;
-        return true;
-    } else if (ele == TYPE.WALL) {
-        return false;
-    } else if (ele == TYPE.FORWARD || ele == TYPE.BACKWARD || ele == TYPE.FORWARD_FLIP || ele == TYPE.BACKWARD_FLIP) {
-        var change = [newPos[0] - this.player[0], newPos[1] - this.player[1]];
-        var oneMore = [newPos[0] + change[0], newPos[1] + change[1]];
-        if (!this.inBounds(oneMore)) {
-            return false;
-        }
-        var oneMoreEle = this.field[oneMore[0]][oneMore[1]];
-        if (oneMoreEle == TYPE.EMPTY) {
-            this.field[oneMore[0]][oneMore[1]] = ele;
-            this.field[newPos[0]][newPos[1]] = TYPE.EMPTY;
-            this.player = newPos;
+game.isOnSlider = function(pos) {
+    for (var i = 0; i < this.sliders.length; i++) {
+        if (eq(pos, this.sliders[i])) {
             return true;
         }
     }
     return false;
 };
+
+game.playerMoveCallback = function(self, newPos, oldPos) {
+    self.player = newPos;
+    if (self.isOnSlider(self.player)) {
+        var change = [newPos[0] - oldPos[0], newPos[1] - oldPos[1]];
+        var oneMore = [newPos[0] + change[0], newPos[1] + change[1]];
+        self.moveIfCan(oneMore, self.playerMoveCallback, TYPE.PLAYER, newPos);
+    }
+};
+
+game.mirrorMoveCallback = function(self, newPos, oldPos) {
+console.log(newPos);
+console.log(oldPos);
+    if (self.field[newPos[0]][newPos[1]] !== TYPE.EMPTY) {
+        console.log("PANIC!");
+    }
+    var oldEle = self.field[oldPos[0]][oldPos[1]];
+    self.field[oldPos[0]][oldPos[1]] = TYPE.EMPTY;
+    self.field[newPos[0]][newPos[1]] = oldEle;
+    if (self.isOnSlider(newPos)) {
+        var change = [newPos[0] - oldPos[0], newPos[1] - oldPos[1]];
+        var oneMore = [newPos[0] + change[0], newPos[1] + change[1]];
+        self.moveIfCan(oneMore, self.mirrorMoveCallback, oldEle, newPos);
+    }
+};
+
+game.moveIfCan = function(newPos, callback, type, oldPos) {
+console.log(newPos);
+console.log(callback);
+console.log(type);
+console.log(oldPos);
+    if (!this.inBounds(newPos)) {
+        return false;
+    }
+    var ele = this.field[newPos[0]][newPos[1]];
+    if (ele == TYPE.EMPTY) {
+        callback(this, newPos, oldPos);
+        return true;
+    } else if (ele == TYPE.WALL) {
+        return false;
+    } else if (type == TYPE.PLAYER && (ele == TYPE.FORWARD || ele == TYPE.BACKWARD || ele == TYPE.FORWARD_FLIP || ele == TYPE.BACKWARD_FLIP)) {
+        var change = [newPos[0] - this.player[0], newPos[1] - this.player[1]];
+        var oneMore = [newPos[0] + change[0], newPos[1] + change[1]];
+        var mirrorCanMove = this.moveIfCan(oneMore, this.mirrorMoveCallback, ele, newPos);
+        if (mirrorCanMove) {
+            callback(this, newPos, oldPos);
+        }
+        return mirrorCanMove;
+    }
+    return false;
+};
+
+
 
 game.draw = function(laserCoords, doorOpen) {
     this.canvas.width = this.canvas.width;
@@ -254,7 +287,6 @@ game.draw = function(laserCoords, doorOpen) {
     this.context.fillStyle = 'black';
     this.context.stroke();
     if (this.door !== undefined) { // drawing door
-    console.log("door");
         var doorX = this.ftcX(this.door[0]) + this.cellWidth / 2;
         var doorY = this.ftcY(this.door[1]) + this.cellHeight / 2;
         if (doorOpen) {
@@ -275,6 +307,37 @@ game.draw = function(laserCoords, doorOpen) {
         }
         this.context.stroke();
     }
+    for (var i = 0; i < this.sliders.length; i++) { // drawing sliders
+        var sliderX = this.ftcX(this.sliders[i][0]) + this.cellWidth/2;
+        var sliderY = this.ftcY(this.sliders[i][1]) + this.cellHeight/2;
+        var s = this.scale;
+        this.context.moveTo(sliderX, sliderY + 10*s);
+        this.context.lineTo(sliderX + 4*s, sliderY + 6*s);
+        this.context.lineTo(sliderX + 2*s, sliderY + 6*s);
+        this.context.lineTo(sliderX + 2*s, sliderY + 2*s);
+        this.context.lineTo(sliderX + 6*s, sliderY + 2*s);
+        this.context.lineTo(sliderX + 6*s, sliderY + 4*s);
+        this.context.lineTo(sliderX + 10*s, sliderY);
+        this.context.lineTo(sliderX + 6*s, sliderY - 4*s);
+        this.context.lineTo(sliderX + 6*s, sliderY - 2*s);
+        this.context.lineTo(sliderX + 2*s, sliderY - 2*s);
+        this.context.lineTo(sliderX + 2*s, sliderY - 6*s);
+        this.context.lineTo(sliderX + 4*s, sliderY - 6*s);
+        this.context.lineTo(sliderX, sliderY - 10*s);
+        this.context.lineTo(sliderX - 4*s, sliderY - 6*s);
+        this.context.lineTo(sliderX - 2*s, sliderY - 6*s);
+        this.context.lineTo(sliderX - 2*s, sliderY - 2*s);
+        this.context.lineTo(sliderX - 6*s, sliderY - 2*s);
+        this.context.lineTo(sliderX - 6*s, sliderY - 4*s);
+        this.context.lineTo(sliderX - 10*s, sliderY);
+        this.context.lineTo(sliderX - 6*s, sliderY + 4*s);
+        this.context.lineTo(sliderX - 6*s, sliderY + 2*s);
+        this.context.lineTo(sliderX - 2*s, sliderY + 2*s);
+        this.context.lineTo(sliderX - 2*s, sliderY + 6*s);
+        this.context.lineTo(sliderX - 4*s, sliderY + 6*s);
+        this.context.lineTo(sliderX, sliderY + 10*s);
+    }
+    this.context.stroke();
     
     game.drawLaser(laserCoords);
 };
