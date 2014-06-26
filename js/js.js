@@ -2,13 +2,14 @@ var TYPE = {
     EMPTY: " ",
     PLAYER: "p",
     WALL: "0",
-    FORWARD: "/",
-    BACKWARD: "\\",
-    FORWARD_FLIP: "f",
-    BACKWARD_FLIP: "b",
+    FORWARD: "f",
+    BACKWARD: "b",
+    FORWARD_FLIP: "F",
+    BACKWARD_FLIP: "B",
     BUTTON: ".",
     SOURCE: "@",
-    GOAL: "!"
+    GOAL: "!",
+    DOOR: "d"
 };
 
 var deepCopy = function(x) {
@@ -48,12 +49,12 @@ game.init = function(map, toDoOnFinish) {
     }
     this.source = deepCopy(map.source); // {x, y}
     this.goal = deepCopy(map.goal); // {x, y}
+    this.door = deepCopy(map.door);
     this.canvas.width = this.width * this.cellWidth + this.lineWidth-1;
     this.canvas.height = this.height * this.cellHeight + this.lineWidth-1;
     this.onFinish = toDoOnFinish;
 
-    
-    this.draw();
+    this.takeTurn(true);
 };
 
 var makeOnKeyPress = function(x) {
@@ -84,28 +85,35 @@ game.handleKeyPress = function(e) {
     if (!this.moveIfCan(newPos)) {
         return; // can't move
     }
-    this.flipMirrors();
+    this.takeTurn();
+};
+    
+game.takeTurn = function(firstTurn) {
+    firstTurn = firstTurn || false;
+    if (!firstTurn) {
+        this.flipMirrors();
+    }
     var coords;
-    var win = false;
+    var doorOpen = false;
     for (var i = 0; i < this.buttons.length; i++) {
         var button = this.buttons[i];
         if (eq(button, this.player) || this.field[button[0]][button[1]] !== TYPE.EMPTY) {
             var results = test_from_allen_code(this);
             coords = results.coords;
-            win = results.win;
+            doorOpen = results.win;
             break;
         }
     }
     if (this.buttons.length == 0) {
         var results = test_from_allen_code(this);
         coords = results.coords;
-        win = results.win;
+        doorOpen = results.win;
     }
-    this.draw(coords);
+    this.draw(coords, doorOpen);
     if (coords !== undefined && this.died(coords)) {
         this.active = false;
         this.onFinish(false);
-    } else if (win) {
+    } else if (this.won(doorOpen)) {
         this.active = false;
         this.onFinish(true);
     }
@@ -122,6 +130,10 @@ game.flipMirrors = function() {
         }
     }
 };
+
+game.won = function(doorOpen) {
+    return doorOpen && (this.door === undefined || eq(this.player, this.door));
+}
 
 game.died = function(coords) {
     for (var i = 0; i < coords.length; i++) {
@@ -168,7 +180,7 @@ game.moveIfCan = function(newPos) {
     return false;
 };
 
-game.draw = function(laserCoords) {
+game.draw = function(laserCoords, doorOpen) {
     this.canvas.width = this.canvas.width;
     this.context.lineWidth = this.lineWidth;
     this.context.beginPath();
@@ -241,6 +253,28 @@ game.draw = function(laserCoords) {
     this.context.fill();
     this.context.fillStyle = 'black';
     this.context.stroke();
+    if (this.door !== undefined) { // drawing door
+    console.log("door");
+        var doorX = this.ftcX(this.door[0]) + this.cellWidth / 2;
+        var doorY = this.ftcY(this.door[1]) + this.cellHeight / 2;
+        if (doorOpen) {
+            this.context.moveTo(doorX, doorY - 6*this.scale);
+            this.context.lineTo(doorX + 4*this.scale, doorY + 8*this.scale);
+            this.context.lineTo(doorX - 6*this.scale, doorY - 1*this.scale);
+            this.context.lineTo(doorX + 6*this.scale, doorY - 1*this.scale);
+            this.context.lineTo(doorX - 4*this.scale, doorY + 8*this.scale);
+            this.context.lineTo(doorX, doorY - 6*this.scale);
+        } else {
+            this.context.moveTo(doorX, doorY);
+            this.context.arc(doorX, doorY - 4*this.scale, 4*this.scale, Math.PI/2, 3*Math.PI/2 - .2, true);
+            this.context.moveTo(doorX, doorY);
+            this.context.lineTo(doorX, doorY + 5*this.scale);
+            this.context.moveTo(doorX, doorY + 9*this.scale);
+            this.context.arc(doorX, doorY + 9*this.scale, 1, 0, Math.PI * 2);
+            
+        }
+        this.context.stroke();
+    }
     
     game.drawLaser(laserCoords);
 };
