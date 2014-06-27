@@ -400,7 +400,7 @@ var onFinish = function (won) {
 var start = function() {
     game.init(maps[currentMap-1], onFinish);
     text.innerHTML = '&nbsp;';
-    level.innerHTML = "<h2>Level: " + currentMap + "</h2>";
+    level.innerHTML = "<h2>Layzors Level: " + currentMap + "</h2>";
 };
 var text = document.getElementById('text');
 var level = document.getElementById('level');
