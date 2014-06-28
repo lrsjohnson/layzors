@@ -93,14 +93,17 @@ game.takeTurn = function(firstTurn) {
     }
     var coords;
     var doorOpen = false;
+    var buttonsOn = true;
     for (var i = 0; i < this.buttons.length; i++) {
         var button = this.buttons[i];
-        if (eq(button, this.player) || this.field[button[0]][button[1]] !== TYPE.EMPTY) {
-            var results = test_from_allen_code(this);
-            coords = results.coords;
-            doorOpen = results.win;
-            break;
+        if (!eq(button, this.player) && this.field[button[0]][button[1]] === TYPE.EMPTY) {
+            buttonsOn = false;
         }
+    }
+    if (buttonsOn) {
+        var results = test_from_allen_code(this);
+        coords = results.coords;
+        doorOpen = results.win;
     }
     if (this.buttons.length == 0) {
         var results = test_from_allen_code(this);
@@ -170,8 +173,6 @@ game.playerMoveCallback = function(self, newPos, oldPos) {
 };
 
 game.mirrorMoveCallback = function(self, newPos, oldPos) {
-console.log(newPos);
-console.log(oldPos);
     if (self.field[newPos[0]][newPos[1]] !== TYPE.EMPTY) {
         console.log("PANIC!");
     }
@@ -186,10 +187,6 @@ console.log(oldPos);
 };
 
 game.moveIfCan = function(newPos, callback, type, oldPos) {
-console.log(newPos);
-console.log(callback);
-console.log(type);
-console.log(oldPos);
     if (!this.inBounds(newPos)) {
         return false;
     }
@@ -385,11 +382,12 @@ game.ftcY = function(y) {
 var onFinish = function (won) {
     if (won) {
         console.log('Yay!');
-        text.innerHTML = '<b>Click or press \'r\' to go to the next level.</b>';
-        currentMap ++;
+        //text.innerHTML = '<b>Click or press \'r\' to go to the next level.</b>';
+        text.innerHTML = '<a href="../' + nextMap + '">Click to go to the next level (' + nextMap + ')</a>';
+        //currentMap ++;
         if (currentMap > maps.length) {
-            text.innerHTML = "<b>You're done! Congrats!</b>";
-            currentMap --;
+            //text.innerHTML = "<b>You're done! Congrats!</b>";
+            //currentMap --;
         }
     } else {
         console.log('Boo.');
@@ -404,7 +402,7 @@ var start = function() {
 };
 var text = document.getElementById('text');
 var level = document.getElementById('level');
-var currentMap = 1;
+//var currentMap = 1;
 window.addEventListener('keydown', makeOnKeyPress(game), false);
 start();
 console.log("What are you doing looking at the console? Your actions have been logged, and we know where you live. Back to the game with you!");
