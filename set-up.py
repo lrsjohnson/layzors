@@ -63,3 +63,11 @@ output = output[:-3] + '];'
 foutJs.write(output)
 foutJs.close()
 print lvls
+
+fin = open("first.html")
+firstSrc = fin.read()
+fin.close()
+firstSrc = firstSrc.replace("http://example.com", "http://apark93.mit.edu/layzors/lvls/" + lvls[0])
+foutHtml = open("index.html", "w")
+foutHtml.write(firstSrc)
+foutHtml.close()
