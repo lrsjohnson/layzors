@@ -29,6 +29,13 @@ if os.path.exists("lvls"):
     shutil.rmtree("lvls")
 os.makedirs("lvls")
 
+fileDir = "http://apark93.mit.edu/"
+if os.path.exists("fileDir.txt"):
+    fin = open("fileDir.txt")
+    fileDir = fin.read()
+    fin.close()
+print fileDir
+
 fin = open("lvlIndexSrc.html")
 lvlIndexSrc = fin.read()
 fin.close()
@@ -60,6 +67,7 @@ for i in xrange(numLvls):
 fin = open("last.html")
 lastSrc = fin.read()
 fin.close()
+lastSrc = lastSrc.replace('http://apark93.mit.edu', fileDir)
 os.makedirs("lvls/" + lvls[-1]);
 fout = open("lvls/" + lvls[-1] + "/index.html", "w")
 fout.write(lastSrc)
@@ -76,7 +84,7 @@ print lvls
 fin = open("first.html")
 firstSrc = fin.read()
 fin.close()
-firstSrc = firstSrc.replace("http://example.com", "http://apark93.mit.edu/layzors/lvls/" + lvls[0])
+firstSrc = firstSrc.replace("http://example.com", fileDir + "/lvls/" + lvls[0])
 foutHtml = open("index.html", "w")
 foutHtml.write(firstSrc)
 foutHtml.close()
