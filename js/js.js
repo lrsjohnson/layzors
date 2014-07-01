@@ -27,7 +27,7 @@ var deepCopy = function(x) {
 
 var game = {};
 
-game.init = function(map, toDoOnFinish) {
+game.init = function(map, toDoOnFinish, toDoHelpFunc) {
     this.active = true;
     this.cellWidth = 30;
     this.cellHeight = 30;
@@ -49,6 +49,10 @@ game.init = function(map, toDoOnFinish) {
     this.source = deepCopy(map.source); // {x, y}
     this.goal = deepCopy(map.goal); // {x, y}
     this.door = deepCopy(map.door);
+    console.log(helpFunc);
+    if (helpFunc !== undefined && map.help !== undefined && map.help !== "") {
+        helpFunc(map.help);
+    }
     this.canvas.width = this.width * this.cellWidth + this.lineWidth-1;
     this.canvas.height = this.height * this.cellHeight + this.lineWidth-1;
     this.onFinish = toDoOnFinish;
@@ -400,8 +404,14 @@ var onFinish = function (won) {
     }
 };
 
+var helpFunc = function(helpText) {
+    var help = document.getElementById("help");
+    help.innerHTML = helpText;
+    help.style.display = "block";
+}
+
 var start = function() {
-    game.init(maps[currentMap-1], onFinish);
+    game.init(maps[currentMap-1], onFinish, helpFunc);
     gameWon = false;
     text.innerHTML = '&nbsp;';
     level.innerHTML = "<h2>Layzors Level: " + currentMap + "</h2>";
@@ -413,9 +423,3 @@ window.addEventListener('keydown', makeOnKeyPress(game), false);
 var gameWon = false;
 start();
 console.log("What are you doing looking at the console? Your actions have been logged, and we know where you live. Back to the game with you!");
-
-if (currentMap == 1) {
-    var help = document.getElementById("help");
-    help.innerHTML = "Go to the star!";
-    help.style.display = "block";
-}

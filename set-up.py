@@ -40,7 +40,7 @@ fin = open("lvlSrc.html")
 lvlSrc = fin.read()
 fin.close()
 
-numLvls = 10
+numLvls = 12
 target = "rankings"
 lvls = []
 for i in xrange(numLvls):

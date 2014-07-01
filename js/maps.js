@@ -1,18 +1,45 @@
 var maps = [];
 
+maps.push({ // door
+    help: "Welcome to Layzors! Feel free to experiment on this map.",
+    field: [[' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', 'b', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ']],
+    player: [1, 1],
+    source: [0, 2, 3],
+    goal: [3, 4, 2],
+    door: [4, 3]
+});
+
 maps.push({ // door, button
-   field: [[' ', ' ', ' ', '0', '0'],
-           [' ', ' ', 'b', ' ', '0'],
-           [' ', ' ', ' ', '0', '0'],
-           [' ', ' ', ' ', '0', '0']],
-   player: [1, 3],
-   buttons: [[1, 2]],
-   source: [3, 1, 1],
-   goal: [0, 1, 3],
-   door: [3, 2]
+    help: "Go for the star! ???",
+    field: [[' ', ' ', ' ', '0', '0'],
+            [' ', ' ', 'b', ' ', '0'],
+            [' ', ' ', ' ', '0', '0'],
+            [' ', ' ', ' ', '0', '0']],
+    player: [1, 3],
+    buttons: [[1, 2]],
+    source: [3, 1, 1],
+    goal: [0, 1, 3],
+    door: [3, 2]
+});
+
+maps.push({ // door, button
+    help: "Is it safe?",
+    field: [[' ', 'f', ' ', '0'],
+            [' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ']],
+    player: [0, 2],
+    buttons: [[0, 2]],
+    source: [1, 3, 2],
+    goal: [1, 0, 0],
+    door: [0, 0]
 });
 
 maps.push({ // door
+    help: "Remember, this is a puzzle. Use your head.",
     field: [[' ', 'f', ' ', ' ', ' ', ' ', ' ', 'b'],
             [' ', ' ', 'f', ' ', ' ', ' ', 'b', ' '],
             [' ', ' ', ' ', 'f', ' ', 'b', ' ', ' '],
@@ -28,18 +55,20 @@ maps.push({ // door
 });
 
 maps.push({ // door, button
-   field: [['0', ' ', '0', '0', ' '],
-           [' ', 'b', ' ', ' ', ' '],
-           ['f', ' ', ' ', 'b', ' '],
-           [' ', ' ', ' ', ' ', 'f']],
-   player: [0, 1],
-   buttons: [[2, 1]],
-   source: [3, 0, 1],
-   goal: [1, 2, 3],
-   door: [2, 1]
+    help: "",
+    field: [['0', ' ', '0', '0', ' '],
+            [' ', 'b', ' ', ' ', ' '],
+            ['f', ' ', ' ', 'b', ' '],
+            [' ', ' ', ' ', ' ', 'f']],
+    player: [0, 1],
+    buttons: [[2, 1]],
+    source: [3, 0, 1],
+    goal: [1, 2, 3],
+    door: [2, 1]
 });
 
 maps.push({ // door, button
+    help: "",
     field: [[' ', ' ', '0',  ' '],
             ['b', ' ', 'b', 'b'],
             ['0', ' ',  ' ',  ' '],
@@ -55,6 +84,7 @@ maps.push({ // door, button
 });
 
 maps.push({ // door, button
+    help: "",
     field: [['0', '0', '0', '0', ' ', ' '],
             ['f', 'b', ' ', 'b', 'b', ' '],
             [' ', ' ', ' ', ' ', ' ', ' '],
@@ -68,7 +98,8 @@ maps.push({ // door, button
     door: [3, 2]
 });
 
-maps.push({ // door, switcher
+maps.push({ // door, 
+    help: "",
     field: [[' ', ' ', ' ', ' ', ' '],
             [' ', 'B', ' ', 'b', ' '],
             [' ', ' ', ' ', ' ', ' '],
@@ -81,6 +112,7 @@ maps.push({ // door, switcher
 });
 
 maps.push({ // door, button, slider, switcher
+    help: "",
     field: [['f', 'b', '0', ' ', ' '],
             [' ', ' ', 'F', 'b', ' '],
             [' ', ' ', ' ', ' ', ' '],
@@ -96,6 +128,7 @@ maps.push({ // door, button, slider, switcher
 });
 
 maps.push({ // door, button, slider, switcher
+    help: "",
     field: [[' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' '],
             [' ', 'b', ' ', 'f', ' '],
@@ -113,6 +146,7 @@ maps.push({ // door, button, slider, switcher
 });
 
 maps.push({ // door, slider, switchers
+    help: "",
     field: [[' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', 'f', ' ', 'F', ' ', ' ', 'b'],
             [' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -129,6 +163,7 @@ maps.push({ // door, slider, switchers
 });
 
 maps.push({ // door, slider, switcher, two buttons
+    help: "",
     field: [[' ', ' ', ' ', '0', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', '0', ' ', 'b', ' ', ' '],
             [' ', 'B', ' ', '0', ' ', ' ', ' ', ' '],
