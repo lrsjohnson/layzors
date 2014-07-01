@@ -49,7 +49,6 @@ game.init = function(map, toDoOnFinish, toDoHelpFunc) {
     this.source = deepCopy(map.source); // {x, y}
     this.goal = deepCopy(map.goal); // {x, y}
     this.door = deepCopy(map.door);
-    console.log(helpFunc);
     if (helpFunc !== undefined && map.help !== undefined && map.help !== "") {
         helpFunc(map.help);
     }

@@ -1,7 +1,7 @@
 var maps = [];
 
 maps.push({ // door
-    help: "Welcome to Layzors! Feel free to experiment on this map.",
+    help: "Welcome to Layzors! Feel free to experiment on this map and learn your way around. Use WASD or the arrow keys to move. When you're ready, go for the star!",
     field: [[' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' '],
@@ -14,7 +14,7 @@ maps.push({ // door
 });
 
 maps.push({ // door, button
-    help: "Go for the star! ???",
+    help: "Go for the star! But wait: what's that button???",
     field: [[' ', ' ', ' ', '0', '0'],
             [' ', ' ', 'b', ' ', '0'],
             [' ', ' ', ' ', '0', '0'],
@@ -55,7 +55,7 @@ maps.push({ // door
 });
 
 maps.push({ // door, button
-    help: "",
+    help: "And a bit harder...",
     field: [['0', ' ', '0', '0', ' '],
             [' ', 'b', ' ', ' ', ' '],
             ['f', ' ', ' ', 'b', ' '],
@@ -68,7 +68,7 @@ maps.push({ // door, button
 });
 
 maps.push({ // door, button
-    help: "",
+    help: "Where do you want the laser to go? And is it possible?",
     field: [[' ', ' ', '0',  ' '],
             ['b', ' ', 'b', 'b'],
             ['0', ' ',  ' ',  ' '],
@@ -84,7 +84,7 @@ maps.push({ // door, button
 });
 
 maps.push({ // door, button
-    help: "",
+    help: "Don't make any missteps!",
     field: [['0', '0', '0', '0', ' ', ' '],
             ['f', 'b', ' ', 'b', 'b', ' '],
             [' ', ' ', ' ', ' ', ' ', ' '],
@@ -98,8 +98,8 @@ maps.push({ // door, button
     door: [3, 2]
 });
 
-maps.push({ // door, 
-    help: "",
+maps.push({ // door, switcher
+    help: "What is this switcher thing?",
     field: [[' ', ' ', ' ', ' ', ' '],
             [' ', 'B', ' ', 'b', ' '],
             [' ', ' ', ' ', ' ', ' '],
@@ -112,7 +112,25 @@ maps.push({ // door,
 });
 
 maps.push({ // door, button, slider, switcher
-    help: "",
+    help: "And what is this slider thing?",
+    field: [[' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' '],
+            [' ', 'b', ' ', 'f', ' '],
+            [' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' '],
+            ['0', ' ', ' ', ' ', '0'],
+            [' ', 'B', ' ', ' ', ' '],
+            [' ', ' ', ' ', '0', '0']],
+    player: [6, 4],
+    buttons: [[2, 4]],
+    sliders: [[6, 3]],
+    source: [0, 3, 3],
+    goal: [7, 1, 1],
+    door: [1, 2]
+});
+
+maps.push({ // door, button, slider, switcher
+    help: "Allen says to replace this one.",
     field: [['f', 'b', '0', ' ', ' '],
             [' ', ' ', 'F', 'b', ' '],
             [' ', ' ', ' ', ' ', ' '],
@@ -127,26 +145,8 @@ maps.push({ // door, button, slider, switcher
     door: [3, 2]
 });
 
-maps.push({ // door, button, slider, switcher
-    help: "",
-    field: [[' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' '],
-            [' ', 'b', ' ', 'f', ' '],
-            [' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' '],
-            ['0', ' ', ' ', ' ', ' '],
-            [' ', 'B', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', '0']],
-    player: [0, 3],
-    buttons: [[2, 4]],
-    sliders: [[5, 1]],
-    source: [0, 3, 3],
-    goal: [7, 1, 1],
-    door: [0, 2]
-});
-
 maps.push({ // door, slider, switchers
-    help: "",
+    help: "This is still a puzzle. Where's the laser going and where do you want it to go?",
     field: [[' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', 'f', ' ', 'F', ' ', ' ', 'b'],
             [' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -163,7 +163,7 @@ maps.push({ // door, slider, switchers
 });
 
 maps.push({ // door, slider, switcher, two buttons
-    help: "",
+    help: "Good luck!",
     field: [[' ', ' ', ' ', '0', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', '0', ' ', 'b', ' ', ' '],
             [' ', 'B', ' ', '0', ' ', ' ', ' ', ' '],
