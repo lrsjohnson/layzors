@@ -1,4 +1,5 @@
-import random, string, os
+import random, string, os, shutil
+
 def genRandString(length):
     return ''.join(random.choice(string.ascii_lowercase) for i in xrange(length))
 
@@ -24,8 +25,16 @@ def subtractNumsToStr(s1, s2):
         r += chr(subtract + 96)
     return r
 
-if not os.path.exists("lvls"):
-    os.makedirs("lvls")
+if os.path.exists("lvls"):
+    shutil.rmtree("lvls")
+os.makedirs("lvls")
+
+fin = open("lvlIndexSrc.html")
+lvlIndexSrc = fin.read()
+fin.close()
+fout = open("lvls/index.html", "w")
+fout.write(lvlIndexSrc)
+fout.close()
 
 fin = open("lvlSrc.html")
 lvlSrc = fin.read()
