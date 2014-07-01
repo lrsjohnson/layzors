@@ -91,5 +91,5 @@ foutHtml.close()
 
 lastSrc = moveSrc.replace("http://example.com", fileDir + "/layzors/lvls/" + lvls[-1])
 foutHtml = open("cheats.html", "w")
-foutHtml.write(firstSrc)
+foutHtml.write(lastSrc)
 foutHtml.close()
