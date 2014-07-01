@@ -9,7 +9,7 @@ maps.push({ // door, button
    buttons: [[1, 2]],
    source: [3, 1, 1],
    goal: [0, 1, 3],
-   door: [2, 2]
+   door: [3, 2]
 });
 
 maps.push({ // door
