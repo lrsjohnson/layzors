@@ -25,7 +25,8 @@ def subtractNumsToStr(s1, s2):
         r += chr(subtract + 96)
     return r
 
-shutil.rmtree("lvls")
+if os.path.exists("lvls"):
+    shutil.rmtree("lvls")
 os.makedirs("lvls")
 
 fin = open("lvlIndexSrc.html")
