@@ -413,3 +413,9 @@ window.addEventListener('keydown', makeOnKeyPress(game), false);
 var gameWon = false;
 start();
 console.log("What are you doing looking at the console? Your actions have been logged, and we know where you live. Back to the game with you!");
+
+if (currentMap == 1) {
+    var help = document.getElementById("help");
+    help.innerHTML = "Go to the star!";
+    help.style.display = "block";
+}
