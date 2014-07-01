@@ -32,7 +32,7 @@ os.makedirs("lvls")
 fileDir = "http://apark93.mit.edu/"
 if os.path.exists("fileDir.txt"):
     fin = open("fileDir.txt")
-    fileDir = fin.read()
+    fileDir = fin.read().strip()
     fin.close()
 print fileDir
 
