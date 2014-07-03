@@ -4,13 +4,13 @@ maps.push({ // door
     help: "Welcome to Layzors! Feel free to experiment on this map and learn your way around. Use WASD or the arrow keys to move. When you're ready, go for the star!",
     field: [[' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', 'b', ' '],
             [' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'b', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ']],
     player: [1, 1],
-    source: [0, 2, 3],
+    source: [0, 2, 1],
     goal: [3, 4, 2],
-    door: [4, 3]
+    door: [3, 4]
 });
 
 maps.push({ // door, button
@@ -19,11 +19,11 @@ maps.push({ // door, button
             [' ', ' ', 'b', ' ', '0'],
             [' ', ' ', ' ', '0', '0'],
             [' ', ' ', ' ', '0', '0']],
-    player: [1, 3],
-    buttons: [[1, 2]],
-    source: [3, 1, 1],
-    goal: [0, 1, 3],
-    door: [3, 2]
+    player: [3, 1],
+    buttons: [[2, 1]],
+    source: [1, 3, 2],
+    goal: [1, 0, 0],
+    door: [2, 3]
 });
 
 maps.push({ // door, button
@@ -74,7 +74,7 @@ maps.push({ // door, button
             ['0', ' ',  ' ',  ' '],
             [' ', ' ',  'f',  ' '],
             [' ', 'b',  '0',  ' '],
-            [' ', ' ', 'b',  ' '],            
+            [' ', ' ', 'b',  ' '],
             [' ', ' ',  ' ',  '0']],
     player: [0, 0],
     buttons: [[1, 1]],
