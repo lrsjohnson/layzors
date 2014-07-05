@@ -19,6 +19,7 @@ Game.prototype.loadMap = function(map) {
 }
 
 Game.prototype.resetGame = function() {
+    this.active = true;
     this.loadMap(this.initialMap);
 };
 

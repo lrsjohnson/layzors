@@ -150,3 +150,33 @@ Map.prototype.loadFromJsonData = function(jsonData) {
 Map.prototype.decodePositionInfo = function(posInfo) {
     return create_position(posInfo[0], posInfo[1]);
 };
+
+Map.prototype.addRow = function() {
+    var newRow = []
+    for (var x = 0; x < this.width; x++) {
+	var pos = create_position(x, this.height);
+	newRow.push(new Item(pos, ITEM_TYPE.EMPTY));
+    }
+    this.items.push(newRow);
+    this.height++;
+};
+
+Map.prototype.addCol = function() {
+    for (var y = 0; y < this.height; y++) {
+	var pos = create_position(this.width, y);
+	this.items[y].push(new Item(pos, ITEM_TYPE.EMPTY));
+    }
+    this.width++;
+};
+
+Map.prototype.removeRow = function() {
+    this.items.splice(this.height - 1);
+    this.height--;
+};
+
+Map.prototype.removeCol = function() {
+    for (var y = 0; y < this.height; y++) {
+	this.items[y].splice(this.width - 1);
+    }
+    this.width--;
+};

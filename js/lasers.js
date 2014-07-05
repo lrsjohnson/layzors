@@ -42,7 +42,7 @@ var MIRROR_BACKWARD = 3; //   \
 function get_laser_effect(pos) {
     var x = position_x(pos);
     var y = position_y(pos);
-    if (x < 0 || y < 0 || x >= game.field.width || y >= game.field.height) {
+    if (x < 0 || y < 0 || x >= game.map.width || y >= game.map.height) {
         return WALL;
     }
     var item_type = game.map.itemAt(pos).type;

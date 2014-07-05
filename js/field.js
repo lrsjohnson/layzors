@@ -120,7 +120,7 @@ Field.prototype.moveItem = function(item, direction) {
     this.map.setItemAt(newPos, item);
 
     if (this.isSliderCell(newPos)) {
-	this.attemptToMoveItem(newPos, direction);
+	this.attemptToMoveItem(item, direction);
     }
 };
 

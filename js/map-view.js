@@ -69,8 +69,8 @@ MapView.prototype.draw = function() {
         this.context.stroke();
     }
     var goalPos = this.fotc(this.map.laserTarget); // drawing goal
-    var w = 3*this.scale;
-    var h = 3*this.scale;
+    var w = 5*this.scale;
+    var h = 8*this.scale;
     var goalL1 = [[-w, 0], [0, -w], [-w, 0], [0, -w]];
     var goalL2 = [[-w, h], [-h, -w], [-w, -h], [h, -w]];
     var goalR1 = [[w, 0], [0, w], [w, 0], [0, w]];
@@ -124,8 +124,8 @@ MapView.prototype.draw = function() {
     }
     var sliders = this.map.sliders;
     for (var i = 0; i < sliders.length; i++) { // drawing sliders
-        var sliderX = this.ftcX(this.sliders[i].x) + this.cellWidth/2;
-        var sliderY = this.ftcY(this.sliders[i].y) + this.cellHeight/2;
+        var sliderX = this.ftcX(this.map.sliders[i].x) + this.cellWidth/2;
+        var sliderY = this.ftcY(this.map.sliders[i].y) + this.cellHeight/2;
         var s = this.scale;
         this.context.moveTo(sliderX, sliderY + 10*s);
         this.context.lineTo(sliderX + 4*s, sliderY + 6*s);
