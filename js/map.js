@@ -1,3 +1,6 @@
+/* A map represents a mutable structure that is used to
+ * store the configuration of a level's objects.
+ */
 var Map = function() {
     // Field of items
     this.width = 0;
@@ -11,6 +14,52 @@ var Map = function() {
     this.laserSoure = undefined;
     this.laserTarget = undefined;
     this.door = undefined;
+
+    this.laserPath = [];
+    this.doorOpen = false;
+};
+
+Map.prototype.clone = function() {
+    var m = new Map();
+    m.width = this.width;
+    m.height = this.height;
+
+    var mItems = [];
+    for (var y = 0; y < this.height; y++) {
+	mItems.push([]);
+	for (var x = 0; x < this.width; x++) {
+	    mItems[y].push(this.items[y][x].clone());
+	}
+    }
+    m.items = mItems;
+
+    m.player = this.player.clone();
+    m.setItemAt(m.player.pos, m.player);
+
+    m.buttons = _.clone(this.buttons);
+    m.sliders = _.clone(this.sliders);
+
+    m.laserSource = this.laserSource;
+    m.laserTarget = this.laserTarget;
+    m.door = this.door;
+
+    return m;
+};
+
+Map.prototype.setLaserPath = function(laserPath) {
+    this.laserPath = laserPath;
+};
+
+Map.prototype.getLaserPathCoordinates = function() {
+    return this.laserPath;
+};
+
+Map.prototype.isDoorOpen = function() {
+    return this.doorOpen;
+};
+
+Map.prototype.setDoorOpen = function(doorOpenState) {
+    this.doorOpen = doorOpenState;
 };
 
 Map.prototype.getWidth = function() {
@@ -21,17 +70,17 @@ Map.prototype.getHeight = function() {
     return this.height;
 };
 
-Map.prototype.getItemsMap = function() {
-    console.log(this.items);
-    var newMap = [];
-    for (var y = 0; y < this.height; y++) {
-	newMap.push([]);
-	for (var x = 0; x < this.width; x++) {
-	    newMap[y].push(this.items[y][x].clone());
-	}
-    }
-    return newMap;
+Map.prototype.itemAt = function(pos) {
+    return this.items[pos.y][pos.x];
 };
+
+Map.prototype.setItemAt = function(pos, item) {
+    item.pos = pos;
+    this.items[pos.y][pos.x] = item;
+};
+
+
+
 
 Map.prototype.getPlayer = function() {
     return this.player.clone();
@@ -43,13 +92,6 @@ Map.prototype.getButtons = function() {
 
 Map.prototype.getSliders = function() {
     return this.sliders; // Immutable
-};
-Map.prototype.getLaserSource = function() {
-    return this.laserSource; // Immutable
-};
-
-Map.prototype.getLaserTarget = function() {
-    return this.laserTarget; // Immutable
 };
 
 Map.prototype.getDoor = function() {
@@ -78,6 +120,8 @@ Map.prototype.loadFromJsonData = function(jsonData) {
     // Player
     var playerPos = this.decodePositionInfo(jsonData['player'])
     this.player = new Player(playerPos);
+    this.setItemAt(this.player.pos, this.player);
+
 
     // Buttons
     var buttonsInfo = jsonData['buttons'] || [];

@@ -1,82 +1,53 @@
+/* The Field manages the dynamic state of the game field and handles
+ * the logic to move various elements on the field and determines when
+ * state (laser path, door, etc.) needs to be updated.
+ *
+ * A Field is given a map object which stores the configuration of
+ * objects on the field.
+ *
+ * The FieldView object is used to draw the current state of a field.
+ */
 var Field = function() {
 };
 
 Field.prototype.loadMap = function(map) {
-    this.laserPath = [];
-    this.doorOpen = false;
+    this.map = map;
+    this.refreshState();
+};
 
-    // Field of items
-    this.width = map.getWidth();
-    this.height = map.getHeight();
-
-    this.items = map.getItemsMap();
-
-    this.player = map.getPlayer();
-    this.setItemAt(this.player.pos, this.player);
-
-    this.buttons = map.getButtons();
-    this.sliders = map.getSliders();
-    this.source = map.getLaserSource();
-    this.target = map.getLaserTarget();
-    console.log(this);
-    this.door = map.getDoor();
-
+/* Can be called to refresh the dynamic state given the current map */
+Field.prototype.refreshState = function() {
     this.runLaserUpdate();
 };
 
-Field.prototype.getLaserPathCoordinates = function() {
-    return this.laserPath;
-};
-
-Field.prototype.isDoorOpen = function() {
-    return this.doorOpen;
-};
-
-Field.prototype.itemAt = function(pos) {
-    return this.items[pos.y][pos.x];
-};
-
-
-Field.prototype.setItemAt = function(pos, item) {
-    item.pos = pos;
-    this.items[pos.y][pos.x] = item;
-};
-
 Field.prototype.isCellEmpty = function(pos) {
-    return this.itemAt(pos).isEmpty();
+    return this.map.itemAt(pos).isEmpty();
 };
 
 Field.prototype.isButtonPushed = function(button) {
     var buttonPos = button;
-    return (equal_position(buttonPos, this.player.pos) || ! this.isCellEmpty(buttonPos));
+    return (equal_position(buttonPos, this.map.player.pos) || ! this.isCellEmpty(buttonPos));
 };
 
 // After all items on the board are in their new places, this will
 // determine if the laser is on and update any attributes that
 // result from the laser's path.
 Field.prototype.runLaserUpdate = function() {
-    var numButtonsPushed = 0;
-    for (var i = 0; i < this.buttons.length; i++) {
-        var button = this.buttons[i];
-	if (this.isButtonPushed(button)) {
-	    numButtonsPushed += 1;
-	}
-    }
-    var isLaserOn = false;
-    if (numButtonsPushed == this.buttons.length) {
-	isLaserOn = true;
-    }
+
+    // buttonNotPushed is a button that isn't pushed or undefined
+    var allButtonsPushed = _.all(this.map.buttons, _.bind(this.isButtonPushed, this));
+    var isLaserOn = allButtonsPushed;
 
     var laserPath = []
     var laserReachedTarget = false;
     if (isLaserOn) {
-	var laserComputationResults = simulate_laser(this.source, this.target);
+	var laserComputationResults = simulate_laser(this.map.laserSource, this.map.laserTarget);
 	laserPath = laserComputationResults.laserPath;
 	laserReachedTarget = laserComputationResults.laserReachedTarget;
     }
 
-    this.doorOpen = laserReachedTarget;
-    this.laserPath = laserPath;
+    this.map.doorOpen = laserReachedTarget;
+    this.map.laserPath = laserPath;
 
     this.playerDead = this.laserIntersectsPlayer(laserPath);
 
@@ -87,10 +58,10 @@ Field.prototype.isPlayerDead = function() {
 };
 
 Field.prototype.flipMirrors = function() {
-    for (var x = 0; x < this.width; x++) {
-        for (var y = 0; y < this.height; y++) {
+    for (var x = 0; x < this.map.width; x++) {
+        for (var y = 0; y < this.map.height; y++) {
 	    var pos = create_position(x, y);
-	    var item = this.itemAt(pos);
+	    var item = this.map.itemAt(pos);
 	    if (item.type == ITEM_TYPE.FORWARD_FLIP) {
 		item.type =  ITEM_TYPE.BACKWARD_FLIP;
 	    } else if (item.type == ITEM_TYPE.BACKWARD_FLIP) {
@@ -103,7 +74,7 @@ Field.prototype.flipMirrors = function() {
 Field.prototype.laserIntersectsPlayer = function(laserPath) {
     for (var i = 0; i < laserPath.length; i++) {
 	var laserPos = laserPath[i];
-	if (equal_position(laserPos, this.player.pos)) {
+	if (equal_position(laserPos, this.map.player.pos)) {
             return true;
         }
     }
@@ -111,46 +82,42 @@ Field.prototype.laserIntersectsPlayer = function(laserPath) {
 };
 
 Field.prototype.gameWon = function() {
-    return this.doorOpen && equal_position(this.player.pos, this.door);
+    return this.map.doorOpen && equal_position(this.map.player.pos, this.map.door);
 };
 
 Field.prototype.inBounds = function(pos) {
-    return !(pos.x < 0 || pos.x >= this.width ||
-	     pos.y < 0 || pos.y >= this.height);
+    return !(pos.x < 0 || pos.x >= this.map.width ||
+	     pos.y < 0 || pos.y >= this.map.height);
 };
 
 
 Field.prototype.isSliderCell = function(pos) {
-    for (var i = 0; i < this.sliders.length; i++) {
-	var sliderPos = this.sliders[i];
-        if (equal_position(pos, sliderPos)) {
-	    return true;
-        }
-    }
-    return false;
+    return _.any(this.map.sliders, function(sliderPos) { return equal_position(pos, sliderPos);});
 };
 
 /* Player Motion */
 
 Field.prototype.attemptPlayerMove = function(direction) {
-    var playerMoved = this.attemptToMoveItem(this.player, direction);
+    var playerMoved = this.attemptToMoveItem(this.map.player, direction);
     if (playerMoved) {
 	this.flipMirrors();
 	this.runLaserUpdate();
     }
 };
 
-/* Moving the item at itemPos to newPos is a valid move. */
+/* Called once moving the item at itemPos to newPos is known to be a
+ * valid move. Will make the initial move in the direction and then
+ * carry out any further effects that move may have (slider cell
+ * trying to push it farther, etc.) */
 Field.prototype.moveItem = function(item, direction) {
-    console.log("moving item...", item);
     var origItemPos = item.pos;
     var newPos = step_dir(origItemPos, direction);
     if (!this.isCellEmpty(newPos)) {
 	throw "Invalid move executed";
     }
-    tmp = this.itemAt(newPos);
-    this.setItemAt(origItemPos, tmp);
-    this.setItemAt(newPos, item);
+    tmp = this.map.itemAt(newPos);
+    this.map.setItemAt(origItemPos, tmp);
+    this.map.setItemAt(newPos, item);
 
     if (this.isSliderCell(newPos)) {
 	this.attemptToMoveItem(newPos, direction);
@@ -170,7 +137,7 @@ Field.prototype.attemptToMoveItem = function(item, direction) {
 	this.moveItem(item, direction);
 	return true;
     }
-    var itemToConsiderPushing = this.itemAt(newPos);
+    var itemToConsiderPushing = this.map.itemAt(newPos);
     if (itemToConsiderPushing.isPushable()) {
 	var pushSuccessful = this.attemptToMoveItem(itemToConsiderPushing, direction);
 	if (pushSuccessful) {

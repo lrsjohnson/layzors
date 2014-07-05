@@ -45,7 +45,7 @@ function get_laser_effect(pos) {
     if (x < 0 || y < 0 || x >= game.field.width || y >= game.field.height) {
         return WALL;
     }
-    var item_type = game.field.itemAt(pos).type;
+    var item_type = game.map.itemAt(pos).type;
 
     if (item_type == ITEM_TYPE.FORWARD || item_type == ITEM_TYPE.FORWARD_FLIP) {
         return MIRROR_FORWARD;
@@ -113,8 +113,6 @@ function step_laser_state(init_laser_state) {
 
     var laser_effect = get_laser_effect(init_pos);
 
-    console.log(laser_effect);
-
     var new_dir = init_dir;
     if (absorbs(laser_effect)) {
         return create_dead_laser_state(init_pos, init_dir);
@@ -146,7 +144,6 @@ function simulate_laser(laserSource, laserTarget) {
     }
 
     laser_coords.push(laser_state_pos(laser_state));
-    console.log('atd', at_destination(laser_state, laser_destination_state));
     return {laserPath: laser_coords, laserReachedTarget: at_destination(laser_state, laser_destination_state)};
 };
 

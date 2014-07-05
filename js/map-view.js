@@ -1,8 +1,8 @@
-var FieldView = function() {
+var MapView = function() {
     this.initGraphicsConstants();
 };
 
-FieldView.prototype.initGraphicsConstants = function() {
+MapView.prototype.initGraphicsConstants = function() {
     this.cellWidth = 30;
     this.cellHeight = 30;
     this.lineWidth = 2;
@@ -13,33 +13,33 @@ FieldView.prototype.initGraphicsConstants = function() {
     this.cellHeight *= this.scale;
 };
 
-FieldView.prototype.init = function(field, canvas) {
-    this.field = field;
+MapView.prototype.init = function(map, canvas) {
+    this.map = map;
     this.canvas = canvas;
     this.context = this.canvas.getContext('2d');
 
-    this.canvas.width = this.field.width * this.cellWidth + this.lineWidth-1;
-    this.canvas.height = this.field.height * this.cellHeight + this.lineWidth-1;
+    this.canvas.width = this.map.width * this.cellWidth + this.lineWidth-1;
+    this.canvas.height = this.map.height * this.cellHeight + this.lineWidth-1;
 };
 
-FieldView.prototype.draw = function() {
-    var laserCoords = this.field.getLaserPathCoordinates();
-    var doorOpen = this.field.isDoorOpen();
+MapView.prototype.draw = function() {
+    var laserCoords = this.map.getLaserPathCoordinates();
+    var doorOpen = this.map.isDoorOpen();
 
     this.canvas.width = this.canvas.width;
     this.context.lineWidth = this.lineWidth;
     this.context.beginPath();
-    for (var i = 0; i <= this.field.width; i++) { // drawing x gridlines
+    for (var i = 0; i <= this.map.width; i++) { // drawing x gridlines
         this.context.moveTo(i*this.cellWidth, 0);
         this.context.lineTo(i*this.cellHeight, this.canvas.height);
     }
-    for (var j = 0; j <= this.field.height; j++) { // drawing y gridlines
+    for (var j = 0; j <= this.map.height; j++) { // drawing y gridlines
         this.context.moveTo(0, j*this.cellWidth);
         this.context.lineTo(this.canvas.width, j*this.cellHeight);
     }
-    for (var i = 0; i < this.field.width; i++) { // drawing field
-        for (var j = 0; j < this.field.height; j++) {
-            var item = this.field.itemAt(create_position(i, j));
+    for (var i = 0; i < this.map.width; i++) { // drawing field
+        for (var j = 0; j < this.map.height; j++) {
+            var item = this.map.itemAt(create_position(i, j));
 	    var itemType = item.type;
             var x = this.ftcX(i);
             var y = this.ftcY(j);
@@ -61,14 +61,14 @@ FieldView.prototype.draw = function() {
         }
     }
     this.context.stroke();
-    var source = this.field.source;
-    var sourcePos = this.fotc(this.field.source);
+    var source = this.map.laserSource;
+    var sourcePos = this.fotc(this.map.laserSource);
     for (var r = 0; r < 5*this.scale; r++) {
         this.context.beginPath();
         this.context.arc(sourcePos[0], sourcePos[1], r, Math.PI/2 * (source.dir), Math.PI/2 * (source.dir + 2));
         this.context.stroke();
     }
-    var goalPos = this.fotc(this.field.target); // drawing goal
+    var goalPos = this.fotc(this.map.laserTarget); // drawing goal
     var w = 3*this.scale;
     var h = 3*this.scale;
     var goalL1 = [[-w, 0], [0, -w], [-w, 0], [0, -w]];
@@ -77,7 +77,7 @@ FieldView.prototype.draw = function() {
     var goalR2 = [[w, h], [-h, w], [w, -h], [h, w]];
     var goalM = [[0, h], [-h, 0], [0, -h], [h, 0]];
     this.context.beginPath();
-    var y = this.field.target.dir;
+    var y = this.map.laserTarget.dir;
     this.context.moveTo(goalPos[0] + goalL1[y][0], goalPos[1] + goalL1[y][1]);
     this.context.lineTo(goalPos[0] + goalL2[y][0], goalPos[1] + goalL2[y][1]);
     this.context.moveTo(goalPos[0] + goalR1[y][0], goalPos[1] + goalR1[y][1]);
@@ -86,21 +86,21 @@ FieldView.prototype.draw = function() {
     this.context.beginPath();
     this.context.arc(goalPos[0] + goalM[y][0], goalPos[1] + goalM[y][1], w, Math.PI/2 * (y+2), Math.PI/2 * (y+4));
     this.context.stroke();
-    for (var i = 0; i < this.field.buttons.length; i++) { // drawing buttons
-        var button = this.field.buttons[i];
+    for (var i = 0; i < this.map.buttons.length; i++) { // drawing buttons
+        var button = this.map.buttons[i];
         var buttonX = this.ftcX(button.x);
         var buttonY = this.ftcY(button.y);
         this.context.strokeRect(buttonX + 6*this.scale, buttonY + 14*this.scale, 20*this.scale, 4*this.scale);
     }
     this.context.beginPath(); // drawing player
-    var playerX = this.ftcX(this.field.player.pos.x) + this.cellWidth / 2;
-    var playerY = this.ftcY(this.field.player.pos.y) + this.cellHeight / 2;
+    var playerX = this.ftcX(this.map.player.pos.x) + this.cellWidth / 2;
+    var playerY = this.ftcY(this.map.player.pos.y) + this.cellHeight / 2;
     this.context.arc(playerX, playerY, 6*this.scale, 0, Math.PI * 2);
     this.context.fillStyle = 'white';
     this.context.fill();
     this.context.fillStyle = 'black';
     this.context.stroke();
-    var door = this.field.door;
+    var door = this.map.door;
     if (door !== undefined) { // drawing door
         var doorX = this.ftcX(door.x) + this.cellWidth / 2;
         var doorY = this.ftcY(door.y) + this.cellHeight / 2;
@@ -122,7 +122,7 @@ FieldView.prototype.draw = function() {
         }
         this.context.stroke();
     }
-    var sliders = this.field.sliders;
+    var sliders = this.map.sliders;
     for (var i = 0; i < sliders.length; i++) { // drawing sliders
         var sliderX = this.ftcX(this.sliders[i].x) + this.cellWidth/2;
         var sliderY = this.ftcY(this.sliders[i].y) + this.cellHeight/2;
@@ -158,12 +158,12 @@ FieldView.prototype.draw = function() {
     this.drawLaser(laserCoords);
 };
 
-FieldView.prototype.drawLaser = function(laserCoords) {
+MapView.prototype.drawLaser = function(laserCoords) {
     if (laserCoords === undefined || laserCoords.length === 0) {
         return;
     }
     this.context.strokeStyle = 'red';
-    var source = this.field.source;
+    var source = this.map.laserSource;
     var firstPos = this.fotc(source);
     this.context.beginPath();
     this.context.moveTo(firstPos[0], firstPos[1]);
@@ -183,7 +183,7 @@ FieldView.prototype.drawLaser = function(laserCoords) {
 
 // Applies to source or goal
 // TODO
-FieldView.prototype.fotc = function(sourceDir) {
+MapView.prototype.fotc = function(sourceDir) {
     var pos = sourceDir.pos;
     var dir = sourceDir.dir;
     var xChanges = [this.cellWidth / 2, this.cellWidth, this.cellWidth / 2, 0];
@@ -194,11 +194,11 @@ FieldView.prototype.fotc = function(sourceDir) {
 }
 
 // field to canvas x
-FieldView.prototype.ftcX = function(x) {
+MapView.prototype.ftcX = function(x) {
     return x * this.cellWidth;
 };
 
 // field to canvas y
-FieldView.prototype.ftcY = function(y) {
+MapView.prototype.ftcY = function(y) {
     return y * this.cellHeight;
 };

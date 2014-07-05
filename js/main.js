@@ -21,7 +21,7 @@ var text = document.getElementById('text');
 var level = document.getElementById('level');
 var currentMap = 2;
 
-var game = new Game();
+var game = new Editor();
 window.addEventListener('keydown', function (e) { game.handleKeyPress(e);}, false);
 var map = new Map();
 map.loadFromJsonData(maps[currentMap-1]);

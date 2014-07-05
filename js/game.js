@@ -4,17 +4,22 @@ var Game = function() {
     this.canvas = document.getElementById("canvas");
 
     this.field = new Field();
-    this.fieldView = new FieldView();
+    this.mapView = new MapView();
+
+    this.onReset = function() {};
+    this.onDie = function() {};
+    this.onWin = function() {};
 };
 
 Game.prototype.loadMap = function(map) {
+    this.initialMap = map.clone();
     this.map = map;
     this.field.loadMap(map);
-    this.fieldView.init(this.field, this.canvas);
+    this.mapView.init(map, this.canvas);
 }
 
 Game.prototype.resetGame = function() {
-    this.field.loadMap(this.map);
+    this.loadMap(this.initialMap);
 };
 
 Game.prototype.setOnReset = function(onReset) {
@@ -35,38 +40,25 @@ Game.prototype.gotoNextLevel = function() {
 
 Game.prototype.onResetGameButton = function() {
     this.resetGame();
+    this.updateDisplay();
 };
 
 Game.prototype.onNextLevelButton = function() {
     if (this.field.gameWon()) {
+	alert ("not sure what next level means");
 	this.gotoNextLevel();
     }
+    this.updateDisplay();
 };
 
-Game.prototype.onLeftButton = function(e) {
+Game.prototype.onDirectionButton = function(direction) {
     if (this.active) {
-	this.field.attemptPlayerMove(DIRECTION.LEFT);
+	this.field.attemptPlayerMove(direction);
     }
+    this.updateDisplay();
 };
 
-Game.prototype.onRightButton = function(e) {
-    if (this.active) {
-	this.field.attemptPlayerMove(DIRECTION.RIGHT);
-    }
-};
-
-Game.prototype.onUpButton = function(e) {
-    if (this.active) {
-	this.field.attemptPlayerMove(DIRECTION.UP);
-    }
-};
-
-Game.prototype.onDownButton = function(e) {
-    if (this.active) {
-	this.field.attemptPlayerMove(DIRECTION.DOWN);
-    }
-};
-
+// Redirect on a key-by-key basis
 Game.prototype.handleKeyPress = function(e) {
     var key = e.keyCode;
     switch(key) {
@@ -78,26 +70,25 @@ Game.prototype.handleKeyPress = function(e) {
 	break;
     case 37: // left
     case 65: // a
-	this.onLeftButton();
+	this.onDirectionButton(DIRECTION.LEFT);
 	break;
     case 38: // up
     case 87: // w
-	this.onUpButton();
+	this.onDirectionButton(DIRECTION.UP);
 	break;
     case 39: // right
     case 68: // d
-	this.onRightButton();
+	this.onDirectionButton(DIRECTION.RIGHT);
 	break;
     case 40: // left
     case 83: // s
-	this.onDownButton();
+	this.onDirectionButton(DIRECTION.DOWN);
 	break;
     }
-    this.updateDisplay();
 };
 
 Game.prototype.updateDisplay = function() {
-    this.fieldView.draw();
+    this.mapView.draw();
     if (this.field.gameWon()) {
 	this.active = false;
 	this.onWin();
