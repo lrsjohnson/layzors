@@ -19,12 +19,12 @@ var onReset = function() {
 
 var text = document.getElementById('text');
 var level = document.getElementById('level');
-var currentMap = 2;
+var currentMap = 1;
 
 var game = new Editor();
 window.addEventListener('keydown', function (e) { game.handleKeyPress(e);}, false);
 var map = new Map();
-map.loadFromJsonData(maps[currentMap-1]);
+map.loadFromJsonData(maps[currentMap - 1]);
 console.log(map);
 
 game.setOnWin(onWin);

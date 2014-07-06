@@ -147,8 +147,47 @@ Map.prototype.loadFromJsonData = function(jsonData) {
     this.door = this.decodePositionInfo(jsonData['door']);
 };
 
+
+Map.prototype.toJsonData = function() {
+    var jsonData = {};
+
+    var itemsArray = [];
+    for (var y = 0; y < this.height; y++) {
+	itemsArray.push([]);
+	for (var x = 0; x < this.width; x++) {
+            var itemCode = this.items[y][x].type;
+            itemsArray[y].push(itemCode);
+	}
+    }
+    jsonData['field'] = itemsArray;
+
+    // Player
+    jsonData['player'] = this.encoePositionInfo(this.player.pos);
+
+    // Buttons
+    jsonData['buttons'] =  _.map(this.buttons, this.encoePositionInfo);
+
+    // Sliders
+    jsonData['sliders'] =  _.map(this.sliders, this.encoePositionInfo);    
+
+    // Laser Source
+    jsonData['source'] = [this.laserSource.pos.x, this.laserSource.pos.y, this.laserSource.dir];
+
+    // Laser Target
+    jsonData['goal'] = [this.laserTarget.pos.x, this.laserTarget.pos.y, this.laserTarget.dir];
+    
+    // Door
+    jsonData['door'] = this.encoePositionInfo(this.door);
+    return jsonData;
+};
+
+
 Map.prototype.decodePositionInfo = function(posInfo) {
     return create_position(posInfo[0], posInfo[1]);
+};
+
+Map.prototype.encoePositionInfo = function(pos) {
+    return [pos.x, pos.y];
 };
 
 Map.prototype.addRow = function() {

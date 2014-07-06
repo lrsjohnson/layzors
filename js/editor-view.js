@@ -15,8 +15,8 @@ EditorView.prototype.handleClick = function(e) {
     this.cellClickDelegate(pos);
 };
 
-EditorView.prototype.init = function(map, canvas) {
-    MapView.prototype.init.call(this, map, canvas);
+EditorView.prototype.initCanvas = function(canvas) {
+    MapView.prototype.initCanvas.call(this, canvas);
     $(this.canvas).click(_.bind(this.handleClick, this));
 };
 

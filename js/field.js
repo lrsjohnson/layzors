@@ -124,7 +124,7 @@ Field.prototype.moveItem = function(item, direction) {
     }
 };
 
-/* Attempts to move the player in the indicated direction. Returns
+/* Attempts to move the item in the indicated direction. Returns
  * true or false based on whether the move was successful */
 Field.prototype.attemptToMoveItem = function(item, direction) {
     var itemPos = item.pos;
@@ -134,11 +134,13 @@ Field.prototype.attemptToMoveItem = function(item, direction) {
 	return false;
     }
     if (this.isCellEmpty(newPos)) {
+        console.log('cell empty');        
 	this.moveItem(item, direction);
 	return true;
     }
     var itemToConsiderPushing = this.map.itemAt(newPos);
-    if (itemToConsiderPushing.isPushable()) {
+    console.log(itemType);
+    if (itemType == ITEM_TYPE.PLAYER && itemToConsiderPushing.isPushable()) {
 	var pushSuccessful = this.attemptToMoveItem(itemToConsiderPushing, direction);
 	if (pushSuccessful) {
 	    // If we pushed the item at newPos, move our original item

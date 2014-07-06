@@ -19,13 +19,11 @@ var Item = function(pos, type) {
 };
 
 Item.prototype.isEmpty = function() {
-    return _.contains([ITEM_TYPE.EMPTY],
-		      this.type);
+    return this.type == ITEM_TYPE.EMPTY;
 };
 
 Item.prototype.isPushable = function() {
-    return _.contains([ITEM_TYPE.WALL,
-		       ITEM_TYPE.FORWARD,
+    return _.contains([ITEM_TYPE.FORWARD,
 		       ITEM_TYPE.FORWARD_FLIP,
 		       ITEM_TYPE.BACKWARD,
 		       ITEM_TYPE.BACKWARD_FLIP,

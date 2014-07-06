@@ -13,11 +13,14 @@ MapView.prototype.initGraphicsConstants = function() {
     this.cellHeight *= this.scale;
 };
 
-MapView.prototype.init = function(map, canvas) {
-    this.map = map;
+MapView.prototype.initCanvas = function(canvas) {
     this.canvas = canvas;
     this.context = this.canvas.getContext('2d');
+};
 
+
+MapView.prototype.init = function(map) {
+    this.map = map;
     this.canvas.width = this.map.width * this.cellWidth + this.lineWidth-1;
     this.canvas.height = this.map.height * this.cellHeight + this.lineWidth-1;
 };

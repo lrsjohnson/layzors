@@ -14,6 +14,10 @@ var Editor = function() {
 Editor.prototype = Object.create(Game.prototype);
 Editor.prototype.constructor = Game;
 
+Editor.prototype.onDie = function() {
+    this.onDieFunc();
+};
+
 // Redirect on a key-by-key basis.
 Editor.prototype.handleKeyPress = function(e) {
     var key = e.keyCode;
@@ -60,7 +64,7 @@ Editor.prototype.handleKeyPress = function(e) {
 	break;
     case 187: // +
 	this.map.addRow();
-	this.mapView.init(map, this.canvas);
+	this.mapView.init(map);
 	this.field.refreshState();
 	this.updateDisplay();
 	break;
@@ -81,6 +85,15 @@ Editor.prototype.handleKeyPress = function(e) {
 	this.mapView.init(map, this.canvas);
 	this.field.refreshState();
 	this.updateDisplay();
+	break;
+    case 220: // |
+        var levelData = $("#leveldata")[0].value;
+        var jsonObj = JSON.parse(leveldata);
+        this.map.loadFromJsonData(jsonObj);
+	break;
+    case 13: // enter
+        var x = JSON.stringify(this.map.toJsonData());
+        $("#leveldata")[0].value = x;
 	break;
     case 32: // space
 	this.initialMap = this.map.clone();

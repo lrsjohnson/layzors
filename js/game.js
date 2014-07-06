@@ -7,15 +7,16 @@ var Game = function() {
     this.mapView = new MapView();
 
     this.onReset = function() {};
-    this.onDie = function() {};
-    this.onWin = function() {};
+    this.onDieFunc = function() {};
+    this.onWinFunc = function() {};
 };
 
 Game.prototype.loadMap = function(map) {
     this.initialMap = map.clone();
     this.map = map;
     this.field.loadMap(map);
-    this.mapView.init(map, this.canvas);
+    this.mapView.initCanvas(this.canvas);
+    this.mapView.init(map);
 }
 
 Game.prototype.resetGame = function() {
@@ -28,11 +29,20 @@ Game.prototype.setOnReset = function(onReset) {
 };
 
 Game.prototype.setOnWin = function(onWin) {
-    this.onWin = onWin;
+    this.onWinFunc = onWin;
 };
 
 Game.prototype.setOnDie = function(onDie) {
-    this.onDie = onDie;
+    this.onDieFunc = onDie;
+};
+
+Game.prototype.onWin = function() {
+    this.onWinFunc();
+};
+
+Game.prototype.onDie = function() {
+    this.active = false;
+    this.onDieFunc();
 };
 
 Game.prototype.gotoNextLevel = function() {
@@ -91,10 +101,8 @@ Game.prototype.handleKeyPress = function(e) {
 Game.prototype.updateDisplay = function() {
     this.mapView.draw();
     if (this.field.gameWon()) {
-	this.active = false;
 	this.onWin();
     } else if (this.field.isPlayerDead()) {
-	this.active = false;
 	this.onDie();
     }
 };
